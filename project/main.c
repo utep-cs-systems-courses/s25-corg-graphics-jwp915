@@ -1,4 +1,6 @@
-#AiAnclude <msp430.h>
+#include <msp430.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include "lcd.h"
 
 extern void delay_ms(unsigned int ms);    // From delay.asm
@@ -44,13 +46,9 @@ int main(void) {
             lcd_print("Too Soon!");
             play_buzzer();               // Signal failure
         } else {
-            unsigned long end = TAR;
-            unsigned int reaction_time = (end - start) / 8; // Approx. ms
-            char buffer[16];
             lcd_clear();
-            sprintf(buffer, "Time: %d ms", reaction_time);
-            lcd_print(buffer);
-            play_buzzer();               // Signal success
+	    lcd_print("Good!");
+	    play_buzzer();
         }
 
         delay_ms(2000);

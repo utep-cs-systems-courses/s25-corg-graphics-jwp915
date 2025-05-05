@@ -1,19 +1,16 @@
-    .cdecls C,LIST,"msp430.h"
     .text
     .global play_buzzer
 
 play_buzzer:
-    ; Plays a square wave tone on P2.1 for a short duration
-    ; Assumes 1 MHz clock
-
+    ; Plays a tone by toggling P2.1
     PUSH R4
     PUSH R5
 
-    MOV #1000, R4         ; Outer loop: total duration
+    MOV #1000, R4           ; Duration loop
 outer_loop:
-    MOV #100, R5          ; Inner loop: one cycle
+    MOV #100, R5
 toggle_loop:
-    XOR #BIT1, &P2OUT     ; Toggle P2.1
+    XOR #0x02, &P2OUT       ; Toggle BIT1 = 0x02 (buzzer)
     NOP
     NOP
     NOP
@@ -24,7 +21,7 @@ toggle_loop:
     DEC R4
     JNZ outer_loop
 
-    BIC #BIT1, &P2OUT     ; Ensure buzzer is OFF
+    BIC #0x02, &P2OUT       ; Turn buzzer OFF
     POP R5
     POP R4
     RET

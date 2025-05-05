@@ -1,19 +1,18 @@
-    .cdecls C,LIST,"msp430.h"
     .text
     .global wait_for_press
 
 wait_for_press:
-    ; Returns 0 in R12 if valid press
-    ; Returns 1 in R12 if button was pressed too early (LED off)
+    ; Returns 0 in R12 for valid press
+    ; Returns 1 in R12 for too-early press
     PUSH R14
 
 wait_loop:
-    BIT #BIT3, &P1IN      ; Check if button is pressed
+    BIT #0x08, &P1IN        ; BIT3 = 0x08 (button input)
     JZ check_led
     JMP wait_loop
 
 check_led:
-    BIT #BIT0, &P1OUT     ; Check if LED is ON
+    BIT #0x01, &P1OUT       ; BIT0 = 0x01 (LED output)
     JZ too_soon
 
     ; Debounce
@@ -22,11 +21,11 @@ debounce_loop:
     DEC R14
     JNZ debounce_loop
 
-    MOV #0, R12           ; Valid press
+    MOV #0, R12             ; Valid press
     POP R14
     RET
 
 too_soon:
-    MOV #1, R12           ; Too early
+    MOV #1, R12             ; Too early
     POP R14
     RET
