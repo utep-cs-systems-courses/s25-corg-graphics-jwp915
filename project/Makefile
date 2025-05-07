@@ -1,34 +1,27 @@
-TOOLCHAIN = /Applications/ti/msp430-gcc/bin
-CC = $(TOOLCHAIN)/msp430-elf-gcc
-AS = $(TOOLCHAIN)/msp430-elf-as
-OBJCOPY = $(TOOLCHAIN)/msp430-elf-objcopy
+# === Configuration ===
+CPU         = msp430g2553
+CC          = /Applications/ti/msp430-gcc/bin/msp430-elf-gcc
+AS          = /Applications/ti/msp430-gcc/bin/msp430-elf-as
+OBJCOPY     = /Applications/ti/msp430-gcc/bin/msp430-elf-objcopy
 
-MCU = msp430g2553
-INCLUDEDIR = /Applications/ti/msp430-gcc/include
-CFLAGS = -mmcu=$(MCU) -I$(INCLUDEDIR) -O2
-ASFLAGS = -mmcu=$(MCU)
+CFLAGS      = -mmcu=$(CPU) -O2 -I/Applications/ti/msp430-gcc/include
+LDFLAGS     = -T msp430g2553.ld
 
-SOURCES = main.c lcd.c delay.asm button.asm buzzer.asm
-OBJECTS = $(SOURCES:.c=.o)
-OBJECTS := $(OBJECTS:.asm=.o)
+# === Source Files ===
+SOURCES     = main.c lcd.c delay.asm button.asm buzzer.asm
+OBJECTS     = main.o lcd.o delay.o button.o buzzer.o
 
-TARGET = game.elf
-BINARY = game.hex
+# === Default Target ===
+all: game.elf
 
-$(TARGET): $(OBJECTS)
-	$(CC) $(CFLAGS) -T msp430g2553.ld -o $@ $^
+# === Link Step ===
+game.elf: $(OBJECTS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
 
-%.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+# === Flash Using mspdebug ===
+load: game.elf
+	sudo mspdebug tilib "prog $^"
 
-%.o: %.asm
-	$(AS) $(ASFLAGS) $< -o $@
-
-hex: $(TARGET)
-	$(OBJCOPY) -O ihex $(TARGET) $(BINARY)
-
+# === Clean Build Artifacts ===
 clean:
 	rm -f *.o *.elf *.hex
-
-flash:
-	mspdebug rf2500 "prog game.hex"
