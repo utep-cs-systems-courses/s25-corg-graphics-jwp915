@@ -185,3 +185,26 @@ measure_3(unsigned int notes_){
       break;
     } 
 }
+
+void buzzer_Update() {
+   //led_Flags |= switch_state_down ? LED_GREEN : 0;
+  //led_Flags |= switch_state_down ? 0 : LED_RED;
+  
+  if(switch_state_down) {
+    if(gone_Once == 0){
+      gone_Once ++;
+      frqz -= 0xC4;//100
+    }
+    buzzer_set_period(frqz);
+    if(frqz > 0x8CA2){//4500
+      frqz = 0xDAC;//3500
+    }
+    //P1OUT &= (0xFF - LEDS)|led_Flags;
+    //blinkers_Green();
+  }else{
+    gone_Once = 0;
+    buzzer_set_period(0);
+    //P1OUT &= (0xFF - LEDS) | led_Flags;
+    //blinkers_Red();
+  }
+}

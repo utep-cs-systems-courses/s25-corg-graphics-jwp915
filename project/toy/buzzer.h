@@ -16,4 +16,5 @@ void measure_1(unsigned int notes_);
 void measure_2(unsigned int notes_);
 void measure_3(unsigned int notes_);
 void change_Notes_(short value);
+void buzzer_Update();
 #endif // included

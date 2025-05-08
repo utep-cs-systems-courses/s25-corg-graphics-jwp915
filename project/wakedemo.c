@@ -2,6 +2,7 @@
 #include <libTimer.h>
 #include "lcdutils.h"
 #include "lcddraw.h"
+#include "buzzer.h"
 
 void draw_SM(unsigned int states);
 
@@ -81,43 +82,56 @@ u_int controlFontColor = COLOR_GREEN;
 void wdt_c_handler()
 {
   static int secCount = 0;
+  secCount++;
 
-  secCount ++;
-  if (secCount >= 25) {		/* 10/sec */
-   
-    {				/* move ball */
-      short oldCol = controlPos[0];
-      short newCol = oldCol + colVelocity;
-      if (newCol <= colLimits[0] || newCol >= colLimits[1])
-	colVelocity = -colVelocity;
-      else
-	controlPos[0] = newCol;
+  if (secCount >= 25) {  // 10/sec
+
+    // --- Move Ball Logic ---
+    short oldCol = controlPos[0];
+    short newCol = oldCol + colVelocity;
+    if (newCol <= colLimits[0] || newCol >= colLimits[1])
+      colVelocity = -colVelocity;
+    else
+      controlPos[0] = newCol;
+
+    // --- Switch States + Buzzer ---
+    if (switches & SW3) {
+      states = 3;
+      green = (green + 1) % 64;
+      buzzer_set_period(1500);
+      __delay_cycles(100000);
+      buzzer_set_period(0);
     }
 
-    {				/* update hourglass */
-      if (switches & SW3) {
-	states = 3;
-	green = (green + 1) % 64;
-      }
-      if (switches & SW2) {
-	states = 2;
-	blue = (blue + 2) % 32;
-      }
-      if (switches & SW1) {
-	states = 1;
-	red = (red - 3) % 32;
-      }
-	if (step <= 35)
-	step ++;
-      else
-	step = 0;
-      secCount = 0;
+    if (switches & SW2) {
+      states = 2;
+      blue = (blue + 2) % 32;
+      buzzer_set_period(2000);
+      __delay_cycles(100000);
+      buzzer_set_period(0);
     }
-    if (switches & SW4) {
-      states = 6;
-    }//return;
-    redrawScreen = 1;
+
+    if (switches & SW1) {
+      states = 1;
+      red = (red - 3) % 32;
+      buzzer_set_period(1000);
+      __delay_cycles(100000);
+      buzzer_set_period(0);
+    }
+
+    if (step <= 35)
+      step++;
+    else
+      step = 0;
+
+    secCount = 0;
   }
+
+  if (switches & SW4) {
+    states = 6;
+  }
+
+  redrawScreen = 1;
 }
   
 void update_shape();
@@ -129,6 +143,7 @@ void main()
   P1OUT |= LED;
   configureClocks();
   lcd_init();
+  buzzer_init();
   switch_init();
   
   enableWDTInterrupts();      /**< enable periodic interrupt */

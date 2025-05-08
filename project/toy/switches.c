@@ -2,7 +2,8 @@
 #include "switches.h"
 #include "led.h"
 #include "incrementing.h"
-char switch_state_down, switch_state_changed; /* effectively boolean */
+
+char switch_state_changed = 0;
 
 static char 
 switch_update_interrupt_sense()
@@ -41,4 +42,14 @@ switch_interrupt_handler()
   char p1val = switch_update_interrupt_sense();
   switch_state_down = (p1val & SW1) ? 0 : 1; /* 0 when SW1 is up */
   switch_state_changed = 1;
+}
+
+char switch_state_down() {
+  char result = 0;
+  char p2val = P2IN;
+  for (char i = 0; i < 4; i++) {
+    if (~p2val & (1 << i)) result = 1;
   }
+  return result;
+}
+

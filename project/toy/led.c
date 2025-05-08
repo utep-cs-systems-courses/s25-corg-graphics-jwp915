@@ -8,34 +8,10 @@ unsigned long frqz = 3500;
 void led_init()
 {
   P1DIR |= LEDS;		// bits attached to leds are output
-  switch_state_changed = 1;
   led_update();
 }
 void led_Off(){
   P1OUT &= ~(LEDS);
-}
-void buzzer_Update(){ //used to be led_Update
-  //led_Flags |= switch_state_down ? LED_GREEN : 0;
-  //led_Flags |= switch_state_down ? 0 : LED_RED;
-  
-  if(switch_state_down) {
-    if(gone_Once == 0){
-      gone_Once ++;
-      frqz -= 0xC4;//100
-    }
-    buzzer_set_period(frqz);
-    if(frqz > 0x8CA2){//4500
-      frqz = 0xDAC;//3500
-    }
-    //P1OUT &= (0xFF - LEDS)|led_Flags;
-    //blinkers_Green();
-  }else{
-    gone_Once = 0;
-    buzzer_set_period(0);
-    //P1OUT &= (0xFF - LEDS) | led_Flags;
-    //blinkers_Red();
-  }
-  switch_state_changed = 0;
 }
 
 void led_update(){

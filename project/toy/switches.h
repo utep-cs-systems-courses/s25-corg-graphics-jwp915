@@ -13,7 +13,8 @@ void switch_init();
 void switch_init_2();
 void switch_interrupt_handler();
 void switch_sense();
+char switch_state_down(void);
 
-extern char switch_state_down, switch_state_changed; /* effectively boolean */
+extern char switch_state_changed;
 
 #endif // included
