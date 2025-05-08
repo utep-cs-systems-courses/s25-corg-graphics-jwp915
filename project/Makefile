@@ -1,27 +1,32 @@
 # === Configuration ===
-CPU         = msp430g2553
-CC          = /Applications/ti/msp430-gcc/bin/msp430-elf-gcc
-AS          = /Applications/ti/msp430-gcc/bin/msp430-elf-as
-OBJCOPY     = /Applications/ti/msp430-gcc/bin/msp430-elf-objcopy
+CPU        = msp430g2553
+CC         = msp430-elf-gcc
+AS         = msp430-elf-gcc
+CFLAGS 	   = -mmcu=$(CPU) -Os -I. -I./toy -I./timerLib -I../lcdLib
+ASFLAGS    = -mmcu=$(CPU)
+LDFLAGS    = -mmcu=$(CPU)
+TARGET     = wakedemo.elf
 
-CFLAGS      = -mmcu=$(CPU) -O2 -I/Applications/ti/msp430-gcc/include
-LDFLAGS     = -T msp430g2553.ld
+# === File discovery ===
+C_SRCS  := $(filter-out wakedemo_off.c toy/buttonMain.c toy/switches.c ../lcdLib/lcddemo.c, $(wildcard *.c toy/*.c timerLib/*.c ../lcdLib/*.c))
+S_SRCS  := $(wildcard *.s toy/*.s timerLib/*.s)
+OBJS    := $(C_SRCS:.c=.o) $(S_SRCS:.s=.o)
 
-# === Source Files ===
-SOURCES     = main.c lcd.c delay.asm button.asm buzzer.asm
-OBJECTS     = main.o lcd.o delay.o button.o buzzer.o
+# === Build Rules ===
+all: $(TARGET)
 
-# === Default Target ===
-all: game.elf
+$(TARGET): $(OBJS)
+	$(CC) $(LDFLAGS) -o $@ $^
 
-# === Link Step ===
-game.elf: $(OBJECTS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
+%.o: %.c
+	$(CC) $(CFLAGS) -c -o $@ $<
 
-# === Flash Using mspdebug ===
-load: game.elf
-	sudo mspdebug tilib "prog $^"
+%.o: %.s
+	$(AS) $(ASFLAGS) -c -o $@ $<
 
-# === Clean Build Artifacts ===
+# === Extra Rules ===
+load: $(TARGET)
+	msp430loader.sh $^
+
 clean:
-	rm -f *.o *.elf *.hex
+	rm -f $(OBJS) $(TARGET)
