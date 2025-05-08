@@ -8,9 +8,10 @@ LDFLAGS    = -mmcu=$(CPU)
 TARGET     = wakedemo.elf
 
 # === File discovery ===
-C_SRCS  := $(filter-out wakedemo_off.c toy/buttonMain.c toy/switches.c ../lcdLib/lcddemo.c, $(wildcard *.c toy/*.c timerLib/*.c ../lcdLib/*.c))
-S_SRCS  := $(wildcard *.s toy/*.s timerLib/*.s)
-OBJS    := $(C_SRCS:.c=.o) $(S_SRCS:.s=.o)
+C_SRCS := $(filter-out wakedemo_off.c toy/buttonMain.c toy/switches.c ../lcdLib/lcddemo.c, \
+            $(wildcard *.c toy/*.c timerLib/*.c ../lcdLib/*.c))
+S_SRCS := $(wildcard *.s toy/*.s timerLib/*.s)
+OBJS   := $(C_SRCS:.c=.o) $(S_SRCS:.s=.o)
 
 # === Build Rules ===
 all: $(TARGET)
